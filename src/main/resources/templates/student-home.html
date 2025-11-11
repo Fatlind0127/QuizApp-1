@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Student Home - Quiz App</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+        }
+        .header {
+            background: white;
+            padding: 20px 30px;
+            border-radius: 10px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            margin-bottom: 30px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .header h1 {
+            color: #4facfe;
+            font-size: 28px;
+        }
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+        .user-badge {
+            background: #4facfe;
+            color: white;
+            padding: 8px 15px;
+            border-radius: 20px;
+            font-weight: bold;
+        }
+        .logout-btn {
+            background: #e74c3c;
+            color: white;
+            padding: 8px 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            text-decoration: none;
+            font-weight: bold;
+        }
+        .logout-btn:hover {
+            background: #c0392b;
+        }
+        .welcome-section {
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            margin-bottom: 30px;
+            text-align: center;
+        }
+        .welcome-section h2 {
+            color: #4facfe;
+            font-size: 24px;
+            margin-bottom: 10px;
+        }
+        .welcome-section p {
+            color: #666;
+            font-size: 16px;
+        }
+        .section {
+            background: white;
+            padding: 25px;
+            border-radius: 10px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            margin-bottom: 30px;
+        }
+        .section h2 {
+            color: #4facfe;
+            margin-bottom: 20px;
+            border-bottom: 2px solid #4facfe;
+            padding-bottom: 10px;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+        th, td {
+            padding: 12px;
+            text-align: left;
+            border-bottom: 1px solid #ddd;
+        }
+        th {
+            background: #4facfe;
+            color: white;
+        }
+        tr:hover {
+            background: #f5f5f5;
+        }
+        .btn {
+            padding: 8px 16px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: bold;
+            font-size: 14px;
+        }
+        .btn-primary {
+            background: #4facfe;
+            color: white;
+        }
+        .btn-primary:hover {
+            background: #3a8fd9;
+        }
+        .empty-state {
+            text-align: center;
+            padding: 40px;
+            color: #999;
+        }
+        .empty-state-icon {
+            font-size: 48px;
+            margin-bottom: 15px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Header -->
+        <div class="header">
+            <h1>🎓 Quiz App - Student Portal</h1>
+            <div class="user-info">
+                <span class="user-badge">👤 <span th:text="${currentUser.username}">Student</span></span>
+                <a href="/logout" class="logout-btn">Logout</a>
+            </div>
+        </div>
+
+        <!-- Welcome Section -->
+        <div class="welcome-section">
+            <h2>Welcome, <span th:text="${currentUser.fullName != null ? currentUser.fullName : currentUser.username}">Student</span>! 👋</h2>
+            <p>Here you can view and take available quizzes. Good luck with your learning!</p>
+        </div>
+
+        <!-- Available Quizzes -->
+        <div class="section">
+            <h2>📝 Available Quizzes</h2>
+            <div th:if="${#lists.isEmpty(quizzes)}" class="empty-state">
+                <div class="empty-state-icon">📚</div>
+                <h3>No Quizzes Available</h3>
+                <p>Check back later for new quizzes!</p>
+            </div>
+            <table th:if="${!#lists.isEmpty(quizzes)}">
+                <thead>
+                    <tr>
+                        <th>Quiz ID</th>
+                        <th>Quiz Title</th>
+                        <th>Description</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr th:each="quiz : ${quizzes}">
+                        <td th:text="${quiz.id}">1</td>
+                        <td th:text="${quiz.title}">Sample Quiz</td>
+                        <td th:text="${quiz.description}">Quiz description</td>
+                        <td>
+                            <button class="btn btn-primary" onclick="alert('Quiz functionality coming soon!')">Take Quiz</button>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Instructions -->
+        <div class="section">
+            <h2>ℹ️ Instructions</h2>
+            <ul style="padding-left: 20px; color: #666;">
+                <li style="margin-bottom: 10px;">Select a quiz from the available quizzes above</li>
+                <li style="margin-bottom: 10px;">Click "Take Quiz" to start the quiz</li>
+                <li style="margin-bottom: 10px;">Answer all questions to the best of your ability</li>
+                <li style="margin-bottom: 10px;">Submit your answers when complete</li>
+                <li style="margin-bottom: 10px;">View your results after submission</li>
+            </ul>
+        </div>
+    </div>
+</body>
+</html>

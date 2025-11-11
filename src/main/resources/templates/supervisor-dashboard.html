@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Supervisor Dashboard</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <style>
+      body {
+        font-family: system-ui, Arial, sans-serif;
+        margin: 24px;
+        background: #f6f7f9;
+        color: #111;
+      }
+      .wrap {
+        max-width: 1100px;
+        margin: 0 auto;
+      }
+      header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 16px;
+      }
+      h1 {
+        font-size: 22px;
+        margin: 0;
+      }
+      .logout-btn {
+        padding: 8px 16px;
+        background: #dc2626;
+        color: #fff;
+        text-decoration: none;
+        border-radius: 8px;
+        font-size: 14px;
+        font-weight: 500;
+        border: none;
+        cursor: pointer;
+      }
+      .logout-btn:hover {
+        background: #b91c1c;
+      }
+      .cards {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+        gap: 12px;
+        margin: 12px 0 24px;
+      }
+      .card {
+        background: #fff;
+        border: 1px solid #e5e7eb;
+        border-radius: 10px;
+        padding: 16px;
+      }
+      .card small {
+        display: block;
+        color: #6b7280;
+        margin-bottom: 6px;
+      }
+      .card .value {
+        font-size: 28px;
+        margin-top: 8px;
+      }
+      .section {
+        background: #fff;
+        border: 1px solid #e5e7eb;
+        border-radius: 10px;
+        padding: 16px;
+        margin-bottom: 16px;
+      }
+      .grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+        gap: 10px;
+      }
+      .btn {
+        display: block;
+        text-decoration: none;
+        padding: 10px 12px;
+        border: 1px solid #e5e7eb;
+        border-radius: 10px;
+        background: #f3f4f6;
+        color: #111;
+        text-align: center;
+      }
+      .muted {
+        color: #6b7280;
+        font-size: 14px;
+      }
+      hr {
+        border: 0;
+        border-top: 1px solid #e5e7eb;
+        margin: 16px 0;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="wrap">
+      <header>
+        <h1>
+          Hello,
+          <span
+            th:text="${currentUser != null ? currentUser.fullName != null && !#strings.isEmpty(currentUser.fullName) ? currentUser.fullName : currentUser.username : 'Supervisor'}"
+            >Supervisor</span
+          >
+        </h1>
+        <div style="display: flex; align-items: center; gap: 12px;">
+          <div class="muted">Supervisor Dashboard</div>
+          <a href="/logout" class="logout-btn">Logout</a>
+        </div>
+      </header>
+
+      <div class="cards">
+        <div class="card">
+          <small>Total Classes</small>
+          <!-- Using totalQuizzes as placeholder; replace when you have classes in the model -->
+          <div class="value" th:text="${totalQuizzes}">0</div>
+        </div>
+        <div class="card">
+          <small>Total Teachers</small>
+          <!-- Using totalAdmins as placeholder for teachers -->
+          <div class="value" th:text="${totalAdmins}">0</div>
+        </div>
+        <div class="card">
+          <small>Total Students</small>
+          <div class="value" th:text="${totalStudents}">0</div>
+        </div>
+      </div>
+
+      <div class="section">
+        <div class="muted">Quick Actions (links can be wired later)</div>
+        <hr />
+        <div class="grid">
+          <a class="btn" href="/supervisor/add-teacher">Add Teacher Account</a>
+          <a class="btn" href="/supervisor/add-student">Add Student Account</a>
+          <a class="btn" href="/supervisor/assign-users"
+            >Assign Users to Class</a
+          >
+          <a class="btn" href="/supervisor/create-class">Create Class</a>
+          <a class="btn" href="/supervisor/manage-classes">Manage Classes</a>
+          <a class="btn" href="/supervisor/manage-users"
+            >Manage User Accounts</a
+          >
+        </div>
+      </div>
+
+      <div class="section">
+        <div class="muted">Data (debug view) — remove later</div>
+        <hr />
+        <p class="muted">
+          Admins list (size <span th:text="${#lists.size(admins)}">0</span>)
+        </p>
+        <ul>
+          <li th:each="a : ${admins}" th:text="${a.username}">admin1</li>
+        </ul>
+        <p class="muted">
+          Students list (size <span th:text="${#lists.size(students)}">0</span>)
+        </p>
+        <ul>
+          <li th:each="s : ${students}" th:text="${s.username}">student1</li>
+        </ul>
+      </div>
+    </div>
+  </body>
+</html>

@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Manage Classes</title>
+    <style>
+      table {
+        border-collapse: collapse;
+        width: 100%;
+      }
+      th,
+      td {
+        border: 1px solid #ddd;
+        padding: 8px;
+      }
+      th {
+        background: #f3f3f3;
+        text-align: left;
+      }
+      .empty {
+        color: #777;
+      }
+      .btn {
+        padding: 6px 10px;
+        border: 1px solid #444;
+        background: #fff;
+        cursor: pointer;
+      }
+    </style>
+  </head>
+  <body>
+    <h1>Manage Classes</h1>
+
+    <p>
+      <a th:href="@{/supervisor/dashboard}">← Back to Dashboard</a>
+    </p>
+
+    <div th:if="${#lists.isEmpty(classNames)}" class="empty">
+      No classes found yet. (Classes appear automatically once users have a
+      <code>class_name</code> set.)
+    </div>
+
+    <table th:if="${!#lists.isEmpty(classNames)}">
+      <thead>
+        <tr>
+          <th>#</th>
+          <th>Class Name</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr th:each="cn, iStat : ${classNames}">
+          <td th:text="${iStat.index + 1}">1</td>
+          <td th:text="${cn}">11A</td>
+          <td>
+            <!-- Exact URL required: /manage-class/view-class.html -->
+            <a th:href="@{/manage-class/view-class.html(name=${cn})}">
+              <button class="btn" type="button">View</button>
+            </a>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </body>
+</html>

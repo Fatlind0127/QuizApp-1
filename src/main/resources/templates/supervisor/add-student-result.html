@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Generated Students</title>
+</head>
+<body>
+    <h1>Generated Students</h1>
+
+    <p th:text="${message}"></p>
+
+    <table border="1">
+        <tr>
+            <th>ID</th>
+            <th>Username</th>
+            <th>Password</th>
+            <th>Class</th>
+        </tr>
+        <tr th:each="student : ${students}">
+            <td th:text="${student['ID']}"></td>
+            <td th:text="${student['Username']}"></td>
+            <td th:text="${student['Password']}"></td>
+            <td th:text="${student['Class']}"></td>
+        </tr>
+    </table>
+
+</body>
+</html>

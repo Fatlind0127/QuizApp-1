@@ -1,0 +1,16 @@
+Tabela per Classes eshte e krijuar, jane krijuar dy table "classes" dhe "class_students"
+
+Te tabela "classes" ka mu rujt emri i klases edhe profesori
+Te tabela "class_students" kane mu rujt krejt studentat e klasave me id te klases prej tabeles "classes"
+
+Per Ledrin:
+- Te SupervisorController.java i ki route per fajllat Add Student Account dhe Create Class, kur i krijon funksionet per keto i krijon me kontrollera te ri brenda folderit supervisor
+(shembull si supervisor/AddTeacherController.java), dhe tani i fshin keto route-a prej SupervisorController(nese nuk i fshin te del Error se maven nuk lejon double route brenda dy 
+kontrollerave te ndryshem)
+
+
+
+Per Lisin:
+- Mundesh mi dizajnu faqet Login, supervisor-dashboard.html dhe supervisor/add-teacher.html
+- Kur i kryn Ledri keto faqet e tjera supervisor/ add-student dhe create-class edhe ato mundesh mi dizajnu (mundesh me perdor dizajn te njejte si te add-teacher)
+- Dizajnin beje Light Mode

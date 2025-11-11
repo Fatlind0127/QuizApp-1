@@ -1,0 +1,405 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+  <head>
+    <meta charset="UTF-8" />
+    <title th:text="'Class ' + ${className}">View Class</title>
+    <style>
+      body {
+        font-family: system-ui, Arial, sans-serif;
+      }
+      table {
+        border-collapse: collapse;
+        width: 100%;
+      }
+      th,
+      td {
+        border: 1px solid #ddd;
+        padding: 8px;
+      }
+      th {
+        background: #f3f3f3;
+        text-align: left;
+      }
+      .empty {
+        color: #777;
+      }
+      .btn {
+        padding: 6px 10px;
+        border: 1px solid #444;
+        background: #fff;
+        cursor: pointer;
+        border-radius: 6px;
+      }
+      .pill {
+        display: inline-block;
+        padding: 4px 10px;
+        border-radius: 999px;
+        background: #f5f5f5;
+        border: 1px solid #e3e3e3;
+      }
+      .msg {
+        margin: 10px 0;
+        padding: 10px;
+        border: 1px solid #d6e9c6;
+        background: #f0fff4;
+        border-radius: 6px;
+      }
+      .row {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        flex-wrap: wrap;
+        margin-bottom: 14px;
+      }
+      .label {
+        font-weight: 600;
+      }
+      /* Modal */
+      .modal-backdrop {
+        position: fixed;
+        inset: 0;
+        background: rgba(0, 0, 0, 0.45);
+        display: none;
+        align-items: center;
+        justify-content: center;
+        z-index: 50;
+      }
+      .modal {
+        background: #fff;
+        border-radius: 12px;
+        padding: 18px;
+        min-width: 360px;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+      }
+      .modal header {
+        font-size: 18px;
+        margin-bottom: 10px;
+      }
+      .modal footer {
+        margin-top: 14px;
+        display: flex;
+        gap: 8px;
+        justify-content: flex-end;
+      }
+      .hidden {
+        display: none;
+      }
+      select,
+      input[type="time"] {
+        width: 100%;
+        padding: 8px;
+        border: 1px solid #ccc;
+        border-radius: 6px;
+      }
+    </style>
+  </head>
+  <body>
+    <h1 th:text="'Class: ' + ${className}">Class: 11A</h1>
+
+    <p>
+      <a class="pill" th:href="@{/supervisor/manage-classes}"
+        >← Back to Manage Classes</a
+      >
+    </p>
+
+    <div th:if="${msg}" class="msg" th:text="${msg}"></div>
+
+    <!-- ===== Top info/actions ===== -->
+    <div class="row">
+      <!-- Teacher -->
+      <div>
+        <span class="label">Teacher:</span>
+        <span th:if="${hasTeacher}" th:text="${classEntity.teacher.fullName}"
+          >—</span
+        >
+        <button th:if="${!hasTeacher}" class="btn" id="openAssignTeacher">
+          Assign Teacher
+        </button>
+        <button th:if="${hasTeacher}" class="btn" id="openEditTeacher">
+          Change
+        </button>
+      </div>
+
+      <!-- Schedule -->
+      <div>
+        <span class="label">Schedule:</span>
+        <span
+          th:if="${hasSchedule}"
+          th:text="${#temporals.format(classEntity.startingTime, 'HH:mm')} + ' - ' + ${#temporals.format(classEntity.endingTime, 'HH:mm')} + ' | ' + ${classEntity.schedule}"
+          >—</span
+        >
+        <button th:if="${!hasSchedule}" class="btn" id="openSetSchedule">
+          Select Schedule
+        </button>
+        <button th:if="${hasSchedule}" class="btn" id="openEditSchedule">
+          Edit
+        </button>
+      </div>
+    </div>
+
+    <!-- ===== Students table (admins excluded) ===== -->
+    <div th:if="${#lists.isEmpty(students)}" class="empty">
+      No students found for this class yet.
+    </div>
+
+    <table th:if="${!#lists.isEmpty(students)}">
+      <thead>
+        <tr>
+          <th>#</th>
+          <th>Full Name</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr th:each="u, iStat : ${students}">
+          <td th:text="${iStat.index + 1}">1</td>
+          <td th:text="${u.fullName}">John Doe</td>
+          <td>
+            <button
+              class="btn change-btn"
+              type="button"
+              th:attr="data-user-id=${u.id}"
+            >
+              Change class
+            </button>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+
+    <!-- ===== Modal: Assign / Change Teacher ===== -->
+    <div id="modalAssignTeacher" class="modal-backdrop">
+      <div class="modal">
+        <header>Assign Teacher</header>
+        <form method="post" th:action="@{/manage-class/assign-teacher}">
+          <input
+            type="hidden"
+            th:if="${_csrf}"
+            th:name="${_csrf.parameterName}"
+            th:value="${_csrf.token}"
+          />
+          <input type="hidden" name="className" th:value="${className}" />
+          <label for="teacherId">Choose teacher</label>
+          <select id="teacherId" name="teacherId" required>
+            <option value="" disabled selected>-- Select teacher --</option>
+            <option
+              th:each="t: ${teachers}"
+              th:value="${t.id}"
+              th:text="${t.fullName}"
+            >
+              Teacher
+            </option>
+          </select>
+          <footer>
+            <button type="button" class="btn" data-close="#modalAssignTeacher">
+              Cancel
+            </button>
+            <button type="submit" class="btn">Confirm</button>
+          </footer>
+        </form>
+      </div>
+    </div>
+
+    <!-- ===== Modal: Set / Edit Schedule ===== -->
+    <div id="modalSchedule" class="modal-backdrop">
+      <div class="modal">
+        <header>Select Schedule</header>
+        <form method="post" th:action="@{/manage-class/set-schedule}">
+          <input
+            type="hidden"
+            th:if="${_csrf}"
+            th:name="${_csrf.parameterName}"
+            th:value="${_csrf.token}"
+          />
+          <input type="hidden" name="className" th:value="${className}" />
+
+          <label for="days">Days (Ctrl/Cmd to multi-select)</label>
+          <select id="days" name="days" multiple size="7" required>
+            <option value="MONDAY">Monday</option>
+            <option value="TUESDAY">Tuesday</option>
+            <option value="WEDNESDAY">Wednesday</option>
+            <option value="THURSDAY">Thursday</option>
+            <option value="FRIDAY">Friday</option>
+            <option value="SATURDAY">Saturday</option>
+            <option value="SUNDAY">Sunday</option>
+          </select>
+
+          <div class="row" style="margin-top: 10px">
+            <div>
+              <label for="startingTime">Start (HH:mm)</label>
+              <input
+                id="startingTime"
+                type="time"
+                name="startingTime"
+                required
+                th:value="${classEntity != null && classEntity.startingTime != null ? #temporals.format(classEntity.startingTime, 'HH:mm') : ''}"
+              />
+            </div>
+            <div>
+              <label for="endingTime">End (HH:mm)</label>
+              <input
+                id="endingTime"
+                type="time"
+                name="endingTime"
+                required
+                th:value="${classEntity != null && classEntity.endingTime != null ? #temporals.format(classEntity.endingTime, 'HH:mm') : ''}"
+              />
+            </div>
+          </div>
+
+          <footer>
+            <button type="button" class="btn" data-close="#modalSchedule">
+              Cancel
+            </button>
+            <button type="submit" class="btn">Save</button>
+          </footer>
+        </form>
+      </div>
+    </div>
+
+    <!-- ===== Modal: Change Class for a Student ===== -->
+    <div
+      id="modalChangeClass"
+      class="modal-backdrop"
+      style="display: none; align-items: center; justify-content: center"
+    >
+      <div class="modal">
+        <header>Move student to another class</header>
+        <form
+          id="changeClassForm"
+          method="post"
+          th:action="@{/manage-class/change-class}"
+        >
+          <!-- CSRF -->
+          <input
+            type="hidden"
+            th:if="${_csrf}"
+            th:name="${_csrf.parameterName}"
+            th:value="${_csrf.token}"
+          />
+          <input type="hidden" name="userId" id="cc_userId" />
+          <input type="hidden" name="fromClass" th:value="${className}" />
+          <label for="cc_targetClass">Choose class</label>
+          <select id="cc_targetClass" name="targetClass" required>
+            <option value="" disabled selected>-- Select class --</option>
+            <option
+              th:each="cn : ${classNames}"
+              th:value="${cn}"
+              th:text="${cn}"
+            >
+              11A
+            </option>
+          </select>
+          <footer
+            style="
+              margin-top: 12px;
+              display: flex;
+              gap: 8px;
+              justify-content: flex-end;
+            "
+          >
+            <button type="button" class="btn" data-close="#modalChangeClass">
+              Cancel
+            </button>
+            <button type="submit" class="btn">Confirm</button>
+          </footer>
+        </form>
+      </div>
+    </div>
+
+    <!-- ===== (Existing) Change-class modal stays as you already have ===== -->
+    <!-- If you used my previous modal ids, keep them as-is. -->
+
+    <script>
+      // helper: open/close
+      function openModal(id) {
+        document.querySelector(id).style.display = "flex";
+      }
+      function closeModal(id) {
+        document.querySelector(id).style.display = "none";
+      }
+
+      // Assign/Change teacher buttons
+      const assignBtn = document.getElementById("openAssignTeacher");
+      const editTeacherBtn = document.getElementById("openEditTeacher");
+      if (assignBtn)
+        assignBtn.addEventListener("click", () =>
+          openModal("#modalAssignTeacher")
+        );
+      if (editTeacherBtn)
+        editTeacherBtn.addEventListener("click", () =>
+          openModal("#modalAssignTeacher")
+        );
+
+      // Set/Edit schedule buttons
+      const setSchedBtn = document.getElementById("openSetSchedule");
+      const editSchedBtn = document.getElementById("openEditSchedule");
+      if (setSchedBtn)
+        setSchedBtn.addEventListener("click", () =>
+          openModal("#modalSchedule")
+        );
+      if (editSchedBtn)
+        editSchedBtn.addEventListener("click", () =>
+          openModal("#modalSchedule")
+        );
+
+      // Close buttons on modals
+      document.querySelectorAll("[data-close]").forEach((btn) => {
+        btn.addEventListener("click", () =>
+          closeModal(btn.getAttribute("data-close"))
+        );
+      });
+
+      // Click outside to close
+      document.querySelectorAll(".modal-backdrop").forEach((backdrop) => {
+        backdrop.addEventListener("click", (e) => {
+          if (e.target === backdrop) backdrop.style.display = "none";
+        });
+      });
+
+      // ===== existing "Change class" modal trigger wiring remains (from your earlier code) =====
+    </script>
+    <script>
+      // open/close helpers (reuse if already defined)
+      function openModal(id) {
+        document.querySelector(id).style.display = "flex";
+      }
+      function closeModal(id) {
+        document.querySelector(id).style.display = "none";
+      }
+
+      // Open the Change-Class modal and inject the userId
+      document.querySelectorAll(".change-btn").forEach((btn) => {
+        btn.addEventListener("click", () => {
+          const uid = btn.getAttribute("data-user-id");
+          document.getElementById("cc_userId").value = uid;
+          openModal("#modalChangeClass");
+        });
+      });
+
+      // Close handlers
+      document.querySelectorAll("[data-close]").forEach((btn) => {
+        btn.addEventListener("click", () =>
+          closeModal(btn.getAttribute("data-close"))
+        );
+      });
+
+      // Close when clicking backdrop
+      document.querySelectorAll(".modal-backdrop").forEach((backdrop) => {
+        backdrop.addEventListener("click", (e) => {
+          if (e.target === backdrop) backdrop.style.display = "none";
+        });
+      });
+
+      // ESC to close active modal
+      document.addEventListener("keydown", (e) => {
+        if (e.key === "Escape") {
+          const open = Array.from(
+            document.querySelectorAll(".modal-backdrop")
+          ).find((el) => el.style.display === "flex");
+          if (open) open.style.display = "none";
+        }
+      });
+    </script>
+  </body>
+</html>

@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Add Teacher</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <style>
+      body {
+        font-family: system-ui, Arial, sans-serif;
+        background: #f6f7f9;
+        margin: 24px;
+      }
+      .card {
+        background: #fff;
+        padding: 22px;
+        border: 1px solid #e5e7eb;
+        border-radius: 12px;
+      }
+      .row {
+        margin-bottom: 14px;
+      }
+      label {
+        display: block;
+        font-size: 14px;
+        margin-bottom: 6px;
+        color: #374151;
+      }
+      input {
+        width: 100%;
+        padding: 12px;
+        border: 1px solid #e5e7eb;
+        border-radius: 10px;
+      }
+      button {
+        width: 100%;
+        padding: 12px;
+        border: 0;
+        border-radius: 10px;
+        background: #5a78ff;
+        color: #fff;
+        font-weight: 600;
+      }
+      .msg {
+        margin-bottom: 12px;
+        font-size: 14px;
+      }
+      .err {
+        color: #b91c1c;
+      }
+      .ok {
+        color: #065f46;
+      }
+      .back-btn {
+        display: inline-block;
+        padding: 8px 16px;
+        margin-bottom: 16px;
+        background: #f3f4f6;
+        color: #111;
+        text-decoration: none;
+        border: 1px solid #e5e7eb;
+        border-radius: 8px;
+        font-size: 14px;
+      }
+      .back-btn:hover {
+        background: #e5e7eb;
+      }
+      .container {
+        max-width: 640px;
+        margin: 0 auto;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <a href="/supervisor/dashboard" class="back-btn">← Back to Dashboard</a>
+      
+      <div th:if="${error}" class="msg err" th:text="${'Error: ' + error}"></div>
+      <div th:if="${success}" class="msg ok">Teacher created successfully.</div>
+
+      <div class="card">
+      <form method="post" action="/supervisor/add-teacher">
+        <!-- CSRF token (safe even if security is off) -->
+        <input
+          type="hidden"
+          th:if="${_csrf}"
+          th:name="${_csrf.parameterName}"
+          th:value="${_csrf.token}"
+        />
+
+        <div class="row">
+          <label for="fullName">Full Name</label>
+          <input
+            id="fullName"
+            name="fullName"
+            type="text"
+            placeholder="Full Name"
+            required
+          />
+        </div>
+
+        <div class="row">
+          <label for="email">Email Address</label>
+          <input
+            id="email"
+            name="email"
+            type="email"
+            placeholder="Email Address"
+          />
+        </div>
+
+        <div class="row">
+          <label for="password">Password (leave both empty for default)</label>
+          <input
+            id="password"
+            name="password"
+            type="password"
+            placeholder="Password (optional)"
+          />
+        </div>
+
+        <div class="row">
+          <label for="confirmPassword"
+            >Confirm Password (leave both empty for default)</label
+          >
+          <input
+            id="confirmPassword"
+            name="confirmPassword"
+            type="password"
+            placeholder="Confirm Password (optional)"
+          />
+        </div>
+
+        <button type="submit">Create</button>
+      </form>
+    </div>
+    </div>
+  </body>
+</html>

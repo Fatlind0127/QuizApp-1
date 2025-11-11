@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Generated Students</title>
+</head>
+<body>
+    <h1>Generated Student Accounts</h1>
+
+    <table border="1">
+        <tr>
+            <th>Full Name</th>
+            <th>Username</th>
+            <th>Password</th>
+        </tr>
+        <tr th:each="student : ${students}">
+            <td th:text="${student.fullName}"></td>
+            <td th:text="${student.username}"></td>
+            <td th:text="${student.password}"></td>
+        </tr>
+    </table>
+
+    <a href="/supervisor/add-student">Add More Students</a>
+</body>
+</html>
