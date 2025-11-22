@@ -1,16 +1,18 @@
 package com.quizapp.quizapp.supervisor.manageclass;
 
+import java.time.LocalTime;
+import java.util.List;
+import java.util.Objects;
+import java.util.Optional;
+import java.util.stream.Collectors;
+
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
 import com.quizapp.quizapp.domain.ClassEntity;
 import com.quizapp.quizapp.domain.ClassEntityRepository;
 import com.quizapp.quizapp.user.User;
 import com.quizapp.quizapp.user.UserRepository;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
-
-import java.time.LocalTime;
-import java.util.List;
-import java.util.Optional;
-import java.util.stream.Collectors;
 
 @Service
 public class ManageClassService {
@@ -49,6 +51,7 @@ public class ManageClassService {
 
     @Transactional
     public void assignTeacher(String className, Integer teacherId) {
+        Objects.requireNonNull(teacherId, "Teacher ID cannot be null");
         ClassEntity cls = classRepo.findByName(className)
                 .orElseThrow(() -> new IllegalArgumentException("Class not found: " + className));
         User teacher = userRepository.findById(teacherId)
