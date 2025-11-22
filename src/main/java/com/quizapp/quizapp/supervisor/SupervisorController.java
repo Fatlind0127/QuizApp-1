@@ -213,6 +213,11 @@ public class SupervisorController {
             return "redirect:/?error=unauthorized";
         }
 
+        if (userId == null) {
+            redirectAttributes.addFlashAttribute("error", "User ID is required");
+            return "redirect:/supervisor/manage-users";
+        }
+
         User user = userRepository.findById(userId).orElse(null);
         if (user == null) {
             redirectAttributes.addFlashAttribute("error", "User not found");
@@ -258,6 +263,11 @@ public class SupervisorController {
             RedirectAttributes redirectAttributes) {
         if (!authService.isAuthorized(session, User.Role.SUPERVISOR_ADMIN)) {
             return "redirect:/?error=unauthorized";
+        }
+
+        if (id == null) {
+            redirectAttributes.addFlashAttribute("error", "User ID is required");
+            return "redirect:/supervisor/manage-users";
         }
 
         User user = userRepository.findById(id).orElse(null);
