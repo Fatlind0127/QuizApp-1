@@ -10,9 +10,11 @@ import java.util.Map;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.quizapp.quizapp.auth.AuthService;
@@ -159,11 +161,121 @@ public class SupervisorController {
 
 
     @GetMapping("/manage-users")
-    public String manageUsersPage(HttpSession session) {
+    public String manageUsersPage(
+            HttpSession session,
+            Model model,
+            @RequestParam(required = false) String filterClass,
+            @RequestParam(required = false) String filterRole) {
         if (!authService.isAuthorized(session, User.Role.SUPERVISOR_ADMIN)) {
             return "redirect:/?error=unauthorized";
         }
+
+        // Get all users
+        List<User> allUsers = userRepository.findAll();
+        
+        // Apply filters
+        List<User> filteredUsers = allUsers;
+        if (filterClass != null && !filterClass.isEmpty() && !filterClass.equals("all")) {
+            filteredUsers = filteredUsers.stream()
+                    .filter(u -> filterClass.equals(u.getClassName()))
+                    .toList();
+        }
+        if (filterRole != null && !filterRole.isEmpty() && !filterRole.equals("all")) {
+            User.Role roleFilter = User.Role.valueOf(filterRole);
+            filteredUsers = filteredUsers.stream()
+                    .filter(u -> u.getRole() == roleFilter)
+                    .toList();
+        }
+
+        // Get distinct class names for filter dropdown
+        List<String> classNames = userRepository.findDistinctClassNames();
+        
+        model.addAttribute("users", filteredUsers);
+        model.addAttribute("classNames", classNames);
+        model.addAttribute("roles", User.Role.values());
+        model.addAttribute("filterClass", filterClass != null ? filterClass : "all");
+        model.addAttribute("filterRole", filterRole != null ? filterRole : "all");
+        
         return "supervisor/manage-users";
+    }
+
+    @PostMapping("/manage-users/edit")
+    public String editUser(
+            HttpSession session,
+            @RequestParam Integer userId,
+            @RequestParam(required = false) String username,
+            @RequestParam(required = false) String fullName,
+            @RequestParam(required = false) String email,
+            @RequestParam(required = false) String className,
+            @RequestParam(required = false) String role,
+            RedirectAttributes redirectAttributes) {
+        if (!authService.isAuthorized(session, User.Role.SUPERVISOR_ADMIN)) {
+            return "redirect:/?error=unauthorized";
+        }
+
+        User user = userRepository.findById(userId).orElse(null);
+        if (user == null) {
+            redirectAttributes.addFlashAttribute("error", "User not found");
+            return "redirect:/supervisor/manage-users";
+        }
+
+        // Update user fields if provided
+        if (username != null && !username.trim().isEmpty()) {
+            // Check if username is already taken by another user
+            if (!username.equals(user.getUsername()) && userRepository.existsByUsername(username)) {
+                redirectAttributes.addFlashAttribute("error", "Username already exists");
+                return "redirect:/supervisor/manage-users";
+            }
+            user.setUsername(username.trim());
+        }
+        if (fullName != null) {
+            user.setFullName(fullName.trim().isEmpty() ? null : fullName.trim());
+        }
+        if (email != null) {
+            user.setEmail(email.trim().isEmpty() ? null : email.trim());
+        }
+        if (className != null) {
+            user.setClassName(className.trim().isEmpty() ? null : className.trim());
+        }
+        if (role != null && !role.isEmpty()) {
+            try {
+                user.setRole(User.Role.valueOf(role));
+            } catch (IllegalArgumentException e) {
+                redirectAttributes.addFlashAttribute("error", "Invalid role");
+                return "redirect:/supervisor/manage-users";
+            }
+        }
+
+        userRepository.save(user);
+        redirectAttributes.addFlashAttribute("success", "User updated successfully");
+        return "redirect:/supervisor/manage-users";
+    }
+
+    @PostMapping("/manage-users/remove/{id}")
+    public String removeUser(
+            HttpSession session,
+            @PathVariable Integer id,
+            RedirectAttributes redirectAttributes) {
+        if (!authService.isAuthorized(session, User.Role.SUPERVISOR_ADMIN)) {
+            return "redirect:/?error=unauthorized";
+        }
+
+        User user = userRepository.findById(id).orElse(null);
+        if (user == null) {
+            redirectAttributes.addFlashAttribute("error", "User not found");
+            return "redirect:/supervisor/manage-users";
+        }
+
+        // Prevent deleting the current logged-in user
+        User currentUser = authService.getCurrentUser(session);
+        if (currentUser != null && currentUser.getId().equals(id)) {
+            redirectAttributes.addFlashAttribute("error", "Cannot delete your own account");
+            return "redirect:/supervisor/manage-users";
+        }
+
+        userRepository.deleteById(id);
+        redirectAttributes.addFlashAttribute("success", "User removed successfully");
+        return "redirect:/supervisor/manage-users";
     }
 
 
