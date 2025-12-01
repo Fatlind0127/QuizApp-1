@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>My Classes</title>
+    <style>
+        body {
+            margin: 0;
+            background: #101114;
+            font-family: 'Inter', 'Segoe UI', sans-serif;
+            color: #fff;
+        }
+
+        .page {
+            max-width: 1100px;
+            margin: 0 auto;
+            padding: 48px 24px 72px;
+        }
+
+        .breadcrumb {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            color: #b6b8c2;
+            font-size: 14px;
+            margin-bottom: 18px;
+        }
+
+        .breadcrumb a {
+            color: #8ea2ff;
+            text-decoration: none;
+        }
+
+        h1 {
+            margin: 0;
+            font-size: 30px;
+        }
+
+        .subtitle {
+            color: #b6b8c2;
+            margin-bottom: 32px;
+        }
+
+        .card {
+            background: #f4f4f6;
+            border-radius: 22px;
+            padding: 32px;
+            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.35);
+        }
+
+        .class-row {
+            background: #fff;
+            border-radius: 16px;
+            padding: 20px 24px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 18px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
+        }
+
+        .class-row:last-child {
+            margin-bottom: 0;
+        }
+
+        .class-name {
+            font-size: 20px;
+            color: #111;
+            font-weight: 600;
+        }
+
+        .class-meta {
+            color: #666;
+            font-size: 14px;
+        }
+
+        .view-btn {
+            background: #4f7df3;
+            color: #fff;
+            border: none;
+            border-radius: 999px;
+            padding: 10px 26px;
+            font-size: 14px;
+            text-decoration: none;
+            box-shadow: 0 10px 20px rgba(79, 125, 243, 0.35);
+            transition: transform 0.2s ease;
+        }
+
+        .view-btn:hover {
+            transform: translateY(-2px);
+        }
+
+        .empty-state {
+            padding: 48px;
+            text-align: center;
+            border: 1px dashed rgba(255, 255, 255, 0.2);
+            border-radius: 18px;
+            color: #b6b8c2;
+        }
+
+        .alert {
+            background: rgba(255, 87, 87, 0.12);
+            color: #ff8a8a;
+            padding: 12px 18px;
+            border-radius: 12px;
+            margin-bottom: 24px;
+        }
+    </style>
+</head>
+<body>
+    <div class="page">
+        <div class="breadcrumb">
+            <a href="/admin/dashboard">← Dashboard</a>
+            <span>/ My Classes</span>
+        </div>
+
+        <div class="alert" th:if="${error != null}" th:text="${error}">Error message</div>
+
+        <h1>Hello,
+            <span th:text="${currentUser != null && currentUser.fullName != null ? currentUser.fullName : currentUser.username}">
+                Teacher
+            </span>
+        </h1>
+        <p class="subtitle">Pick a class to review students, schedules and attendance.</p>
+
+        <div class="card" th:if="${classes != null && !classes.isEmpty()}">
+            <div class="class-row" th:each="classEntity : ${classes}">
+                <div>
+                    <div class="class-name" th:text="${classEntity.name}">11A</div>
+                    <div class="class-meta">
+                        <span th:text="${classEntity.schedule != null ? classEntity.schedule.replace(',', ', ') : 'Schedule TBD'}">
+                            Tuesday, Thursday
+                        </span>
+                        ·
+                        <span th:text="${classEntity.startingTime != null && classEntity.endingTime != null ?
+                                        classEntity.startingTime + ' - ' + classEntity.endingTime :
+                                        'Time TBD'}">
+                            09:00 - 10:30
+                        </span>
+                    </div>
+                </div>
+                <a class="view-btn" th:href="@{/admin/classes/{id}(id=${classEntity.id})}">View</a>
+            </div>
+        </div>
+
+        <div class="empty-state" th:if="${classes == null || classes.isEmpty()}">
+            No classes have been assigned to you yet.
+        </div>
+    </div>
+</body>
+</html>
+

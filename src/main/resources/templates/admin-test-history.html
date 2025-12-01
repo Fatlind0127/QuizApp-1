@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Student Test History</title>
+    <style>
+        body {
+            margin: 0;
+            background: #101114;
+            font-family: 'Inter', 'Segoe UI', sans-serif;
+            color: #fff;
+        }
+
+        .page {
+            max-width: 980px;
+            margin: 0 auto;
+            padding: 48px 24px 80px;
+        }
+
+        .breadcrumb {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            color: #b6b8c2;
+            font-size: 14px;
+            margin-bottom: 18px;
+        }
+
+        .breadcrumb a {
+            color: #8ea2ff;
+            text-decoration: none;
+        }
+
+        .card {
+            background: #f4f4f6;
+            border-radius: 22px;
+            padding: 32px;
+            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.35);
+        }
+
+        h1 {
+            margin: 0;
+            color: #0d0d0d;
+            font-size: 26px;
+        }
+
+        .subtitle {
+            margin: 8px 0 24px;
+            color: #6d6d73;
+        }
+
+        .test-entry {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            background: #fff;
+            border-radius: 18px;
+            padding: 20px 24px;
+            margin-bottom: 16px;
+            box-shadow: 0 12px 24px rgba(0, 0, 0, 0.08);
+        }
+
+        .test-entry:last-child {
+            margin-bottom: 0;
+        }
+
+        .test-entry h3 {
+            margin: 0;
+            color: #0d0d0d;
+            font-size: 18px;
+        }
+
+        .test-entry p {
+            margin: 6px 0 0;
+            color: #7c7c84;
+            font-size: 14px;
+        }
+
+        .score {
+            width: 78px;
+            height: 78px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 16px;
+            font-weight: 600;
+            border: 5px solid #e0e0e0;
+            color: #0d0d0d;
+        }
+
+        .score.success {
+            border-color: #5bc17f;
+            color: #26804c;
+        }
+
+        .score.warn {
+            border-color: #f4c030;
+            color: #b88204;
+        }
+
+        .score.danger {
+            border-color: #f05d5e;
+            color: #a0131c;
+        }
+
+        .empty-state {
+            text-align: center;
+            color: #7c7c84;
+            padding: 32px;
+            border: 1px dashed rgba(0, 0, 0, 0.08);
+            border-radius: 16px;
+            background: rgba(255, 255, 255, 0.6);
+        }
+    </style>
+</head>
+<body>
+    <div class="page">
+        <div class="breadcrumb">
+            <a th:href="@{/admin/classes/{id}(id=${classEntity.id})}">← View Class</a>
+            <span>/ Test History</span>
+        </div>
+
+        <div class="card">
+            <h1>
+                Student:
+                <span th:text="${student != null && student.fullName != null ? student.fullName : student.username}">
+                    Name
+                </span>
+            </h1>
+            <p class="subtitle">
+                Class:
+                <strong th:text="${classEntity != null ? classEntity.name : 'Class'}">11A</strong>
+            </p>
+
+            <div th:if="${history != null && !history.isEmpty()}">
+                <div class="test-entry" th:each="entry : ${history}">
+                    <div>
+                        <h3 th:text="${entry.subject}">JAVA</h3>
+                        <p th:text="${'INSTRUCTOR ' + entry.instructor}">Instructor Name</p>
+                    </div>
+                    <div class="score"
+                         th:classappend="${entry.score >= 75} ? ' success' :
+                                         (${entry.score >= 50} ? ' warn' : ' danger')"
+                         th:text="${entry.score + '/' + entry.total}">
+                        80/100
+                    </div>
+                </div>
+            </div>
+
+            <div class="empty-state" th:if="${history == null || history.isEmpty()}">
+                This student has not completed any tests yet.
+            </div>
+        </div>
+    </div>
+</body>
+</html>
+

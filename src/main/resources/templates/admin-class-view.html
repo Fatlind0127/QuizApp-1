@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>View Class</title>
+    <style>
+        body {
+            margin: 0;
+            background: #101114;
+            font-family: 'Inter', 'Segoe UI', sans-serif;
+            color: #fff;
+        }
+
+        .page {
+            max-width: 1100px;
+            margin: 0 auto;
+            padding: 48px 24px 80px;
+        }
+
+        .breadcrumb {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            color: #b6b8c2;
+            font-size: 14px;
+            margin-bottom: 18px;
+        }
+
+        .breadcrumb a {
+            color: #8ea2ff;
+            text-decoration: none;
+        }
+
+        h1 {
+            margin: 0;
+            font-size: 30px;
+        }
+
+        .subtitle {
+            color: #b6b8c2;
+            margin-bottom: 32px;
+        }
+
+        .card {
+            background: #f4f4f6;
+            border-radius: 22px;
+            padding: 32px;
+            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.35);
+            margin-bottom: 28px;
+        }
+
+        .label {
+            font-size: 13px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            color: #a0a3ad;
+        }
+
+        .value {
+            font-size: 22px;
+            color: #0d0d0d;
+            margin-top: 6px;
+        }
+
+        .meta-line {
+            color: #5a5b66;
+            margin-top: 4px;
+        }
+
+        .students-card {
+            background: #fff;
+            border-radius: 20px;
+            padding: 28px 32px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.12);
+        }
+
+        .student-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 16px 0;
+            border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+        }
+
+        .student-row:last-child {
+            border-bottom: none;
+        }
+
+        .student-name {
+            font-size: 18px;
+            color: #101010;
+            font-weight: 600;
+        }
+
+        .student-meta {
+            color: #666;
+            font-size: 14px;
+        }
+
+        .history-btn {
+            background: #ff8f4d;
+            color: #fff;
+            border: none;
+            border-radius: 999px;
+            padding: 10px 26px;
+            font-size: 14px;
+            text-decoration: none;
+            box-shadow: 0 12px 24px rgba(255, 143, 77, 0.35);
+        }
+
+        .empty-state {
+            padding: 32px;
+            text-align: center;
+            color: #777;
+        }
+    </style>
+</head>
+<body>
+    <div class="page">
+        <div class="breadcrumb">
+            <a href="/admin/classes">← My Classes</a>
+            <span>/ View Class</span>
+        </div>
+
+        <h1 th:text="${classEntity != null ? classEntity.name : 'Class'}">11A</h1>
+        <p class="subtitle">Review schedule and students assigned to this class.</p>
+
+        <div class="card">
+            <div class="label">Class Teacher</div>
+            <div class="value" th:text="${currentUser != null && currentUser.fullName != null ? currentUser.fullName : currentUser.username}">
+                Teacher Name
+            </div>
+            <div class="meta-line">
+                <span th:text="${timeRange}">08:00 - 10:00</span>
+                |
+                <span th:text="${scheduleDays != null && !scheduleDays.isEmpty() ? #strings.listJoin(scheduleDays, ', ') : 'Days TBD'}">
+                    Tuesday, Thursday
+                </span>
+            </div>
+        </div>
+
+        <div class="students-card">
+            <div class="label" style="color:#a0a3ad; margin-bottom: 16px;">Students</div>
+            <div th:if="${students != null && !students.isEmpty()}">
+                <div class="student-row" th:each="student : ${students}">
+                    <div>
+                        <div class="student-name" th:text="${student.fullName != null ? student.fullName : student.username}">
+                            Student Name
+                        </div>
+                        <div class="student-meta">
+                            <span th:text="${student.email != null ? student.email : 'No email'}">student@email.com</span>
+                        </div>
+                    </div>
+                    <a class="history-btn"
+                       th:href="@{/admin/classes/{classId}/students/{studentId}/tests(classId=${classEntity.id}, studentId=${student.id})}">
+                        View Test History
+                    </a>
+                </div>
+            </div>
+            <div class="empty-state" th:if="${students == null || students.isEmpty()}">
+                No students have been assigned to this class yet.
+            </div>
+        </div>
+    </div>
+</body>
+</html>
+
